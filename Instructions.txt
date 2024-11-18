@@ -1,0 +1,107 @@
+1. Login to the AWS Academy Learner Lab and start lab.
+
+2. Download security credentials, the key pair named labuser in .pem format through the AWS Details tab of the AWS Academy Learner Lab.
+
+3. Create and open a Cloud9 environment with a Secure Shell (SSH) connection type.
+
+4. Clone the Git repositories.
+- git clone https://github.com/kevinbayliss/ansible-demo
+- git clone https://github.com/kevinbayliss/terraform-demo
+
+5. Install Ansible and Terraform in the Cloud9 environment using the installation.sh scripts.
+- cd ~/environment && chmod +x ansible-demo/installation/installation.sh && ./ansible-demo/installation/installation.sh
+- cd ~/environment && chmod +x terraform-demo/installation/installation.sh && ./terraform-demo/installation/installation.sh
+
+6. Confirm Ansible and Terraform CLI access.
+- ansible --version && terraform --version
+
+7. Create two EC2 instances using parameters through Terraform.
+- cd terraform-demo/demo_tf_04 && ls
+- terraform init
+- terraform plan -out output.terraform && terraform apply -auto-approve output.terraform
+
+8. Add an SSH access rule to the default security group.
+
+9. Configure the EC2 instances in the Ansible hosts file.
+- sudo vi /etc/ansible/hosts
+[servers]
+<IP1> ansible_user=ec2-user ansible_python_interpreter=/usr/bin/python
+<IP2> ansible_user=ec2-user ansible_python_interpreter=/usr/bin/python
+
+10. Add the labuser key pair to the SSH agent.
+- cd ~/environment && eval `ssh-agent -s` && vi labuser.pem
+- chmod 400 labuser.pem && ssh-add labuser.pem && cd ansible-demo
+
+11. Ping the hosts in servers group.
+- export ANSIBLE_HOST_KEY_CHECKING=False && ansible servers -m ping
+
+12. SSH to the remote EC2 instances through EC2 Instance Connect.
+- ssh ec2-user@<IP1>
+- ls && exit
+- ssh ec2-user@<IP2>
+- ls && exit
+
+13. Copy a file to the remote EC2 instances through Ansible using ad hoc commands.
+- ansible-doc copy
+  q
+- touch test_copy.txt && ls && ansible servers -m copy -a "src=test_copy.txt dest=/home/ec2-user"
+- ssh ec2-user@<IP1>
+- ls && exit
+- ssh ec2-user@<IP2>
+- ls && exit
+
+14. Query facts for the hosts in the servers group.
+- ansible servers -m setup
+
+15. Delete the file copied to the remote EC2 instances through Ansible using ad hoc commands.
+- ansible servers -m file -a "dest=/home/ec2-user/test_copy.txt state=absent"
+- ssh ec2-user@<IP1>
+- ls && exit
+- ssh ec2-user@<IP2>
+- ls && exit
+
+16. Copy a file to the remote EC2 instances through Ansible using a playbook.
+- mv test_copy.txt demo_a_01 && cd demo_a_01 && ls
+- ansible-playbook playbook.yaml
+- ssh ec2-user@<IP1>
+- ls && exit
+- ssh ec2-user@<IP2>
+- ls && exit
+
+17. Create a student user on the remote EC2 instances through Ansible using a playbook.
+- cd ../demo_a_02 && ls
+- ansible-playbook playbook.yaml
+- ansible-playbook playbook.yaml -b
+- ssh ec2-user@<IP1>
+- ls /home && exit
+- ssh ec2-user@<IP2>
+- ls /home && exit
+
+18. Delete the student user on the remote EC2 instances through Ansible using a playbook.
+- cd ../demo_a_03 && ls
+- ansible-playbook playbook.yaml -b
+- ssh ec2-user@<IP1>
+- ls /home && exit
+- ssh ec2-user@<IP2>
+- ls /home && exit
+
+19. Install the latest version of Git on the remote EC2 instances through Ansible using a playbook.
+- cd ../demo_a_04 && ls
+- ssh ec2-user@<IP1>
+- git --version || exit
+- ssh ec2-user@<IP2>
+- git --version || exit
+- ansible-playbook playbook.yaml -b
+- ssh ec2-user@<IP1>
+- git --version && exit
+- ssh ec2-user@<IP2>
+- git --version && exit
+
+20. Delete the module.
+- cd ../../terraform-demo/demo_tf_04 && terraform destroy -auto-approve
+
+21. Close and delete the Cloud9 environment.
+
+22. Remove the SSH access rule from the default security group.
+
+23. End Lab and logout of the AWS Academy Learner Lab.

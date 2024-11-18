@@ -1,0 +1,9 @@
+--- 
+- 
+  hosts: servers
+  tasks: 
+    - 
+      copy: "src={{ file }} dest=/home/ec2-user"
+      name: "Copy File"
+  vars: 
+    file: test_copy.txt
